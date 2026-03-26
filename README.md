@@ -12,6 +12,14 @@
 ## 🏗️ Part 1: Data Sourcing & Generation
 To ensure the model reflected real-world aerospace manufacturing conditions, internal data was time-synced with **FRED (Federal Reserve Economic Data)** price indices for Steel, Electronics, and Aluminum.
 
+### **External Macroeconomic Data (FRED)**
+Historical index data was sourced directly from the [Federal Reserve Economic Data (FRED)](https://fred.stlouisfed.org/) database to track the core components of servo-motor manufacturing:
+
+* **Steel:** [Producer Price Index: Metals and Metal Products: Steel Wire, Stainless Steel](https://fred.stlouisfed.org/series/WPU10170502)
+* **Electronics:** [Producer Price Index: Machinery and Equipment: Electronic Components](https://fred.stlouisfed.org/series/WPS1178)
+* **Aluminum:** [Producer Price Index: Alumina and Aluminum Production and Processing](https://fred.stlouisfed.org/series/PCU3313133131)
+* **Labor:** [Unit Labor Costs for Manufacturing: Aerospace Product and Parts Manufacturing](https://fred.stlouisfed.org/series/IPUEN3364U101000000)
+
 ### **Internal Data Synthesis**
 I utilized a Python script to engineer a 5-year monthly inventory history. I intentionally injected **compliance "bugs"**—such as negative quantities and zero-cost items—to demonstrate the model's auditing capabilities.
 
