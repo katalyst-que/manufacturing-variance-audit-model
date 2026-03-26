@@ -24,8 +24,10 @@ I utilized a Python script to engineer a 5-year monthly inventory history. I int
 Disparate datasets were joined using advanced lookup logic. I utilized `VLOOKUP` with "Approximate Match" logic to cascade annual Labor Index data down into monthly manufacturing rows.
 
 ### **Core Data Architecture Formulas:**
-* **Steel/Electronics Integration:** `=IFERROR(VLOOKUP($A2, PPI_Metals!$A:$B, 2, FALSE), "Not Found")`
-* **Labor Index Cascading:** `=VLOOKUP($A2, PPI_Aerospace_Products!$A:$B, 2, TRUE)`
+* **Column B - Steel Integration Macro:** `=IFERROR(VLOOKUP($A2, PPI_Metals!$A:$B, 2, FALSE), "Not Found")`
+* **Column C - Electronics Integration Macro:** `=IFERROR(VLOOKUP($A2, PPI_Electronic_Components!$A:$B, 2, FALSE), "Not Found")`
+* **Column D - Aluminum Integration Macro:** `=IFERROR(VLOOKUP($A2, PPI_Aluminum!$A:$B, 2, FALSE), "Not Found")`
+* **Column E - Labor Index Cascading Macro:** `=VLOOKUP($A2, PPI_Aerospace_Products!$A:$B, 2, TRUE)`
 
 ![Master Macro Trends](images/3.png)
 *Figure 2: The unified Macro_Trends table showing aligned internal/external data.*
