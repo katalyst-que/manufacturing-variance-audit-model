@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <style>
+      body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; background-color: #f0f2f5; color: #333;}
+      .header-container { text-align: center; margin-bottom: 40px; }
+      h1 { margin-bottom: 5px; color: #1a237e; }
+      .subtext { font-size: 16px; color: #555; max-width: 800px; margin: 0 auto; line-height: 1.5;}
+      
+      .dashboard-container { display: flex; flex-wrap: wrap; gap: 25px; justify-content: center; }
+      .chart-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 45%; min-width: 500px; display: flex; flex-direction: column;}
+      
+      .card-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: #2c3e50; }
+      .card-desc { font-size: 13px; color: #666; margin-bottom: 15px; border-left: 3px solid #3498db; padding-left: 10px;}
+      .chart-area { flex-grow: 1; min-height: 350px; }
+    </style>
+  </head>
+  <body>
+    
+    <div class="header-container">
+      <h1>ESI Operations & Financial Variance Dashboard</h1>
+      <p class="subtext">This interactive report audits internal inventory compliance anomalies and models the financial impact of macroeconomic supply chain inflation on standard manufacturing costs.</p>
+    </div>
+    
+    <div class="dashboard-container">
+      
+      <div class="chart-card">
+        <div class="card-title">Inventory Compliance Risk</div>
+        <div class="card-desc">Identifies capital tied up in system errors (negative quantities, zero-cost anomalies) and obsolete stock over 365 days old. This highlights immediate areas for operational auditing.</div>
+        <div class="chart-area" id="audit_chart_div"><p style="text-align:center; padding-top:150px;">Loading Audit Data...</p></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="card-title">5-Year Macroeconomic Cost Variance</div>
+        <div class="card-desc">Tracks actual material costs against standard budgeted costs. Spikes correlate directly with external supply chain disruptions, allowing leadership to visualize inflation impact.</div>
+        <div class="chart-area" id="macro_chart_div"><p style="text-align:center; padding-top:150px;">Loading Macro Data...</p></div>
+      </div>
+
+      <div class="chart-card" style="width: 93%;">
+        <div class="card-title">2024 Predictive Variance Forecasting</div>
+        <div class="card-desc">A predictive model projecting Q1 2024 standard cost variances based on historical trailing averages, anticipated market stabilization, and recent labor index adjustments.</div>
+        <div class="chart-area" id="forecast_chart_div"><p style="text-align:center; padding-top:100px;">Loading Forecast...</p></div>
+      </div>
+
+    </div>
+
+    <script>
+      google.charts.load('current', {'packages':['corechart', 'bar']});
+      google.charts.setOnLoadCallback(fetchData);
+
+      function fetchData() {
+        google.script.run.withSuccessHandler(drawCharts).getDashboardData();
+      }
+
+      function drawCharts(data) {
+        
+        // --- 1. AUDIT PIE CHART ---
+        var auditTable = new google.visualization.DataTable();
+        auditTable.addColumn('string', 'Issue Type');
+        auditTable.addColumn('number', 'Financial Risk ($)');
+
+        data.audit.forEach(function(row) {
+          if(row[0] && row[0] !== 'Grand Total' && row[0] !== '(blank)' && row[0] !== 'Row Labels') {
+             var cost = typeof row[2] === 'string' ? parseFloat(row[2].replace(/[^0-9.-]+/g,"")) : row[2];
+             auditTable.addRow([row[0], cost || 0]);
+          }
+        });
+
+        var auditOptions = { pieHole: 0.4, colors: ['#e74c3c', '#f39c12', '#3498db'], legend: {position: 'right'}, chartArea: {width: '100%', height: '80%'} };
+        new google.visualization.PieChart(document.getElementById('audit_chart_div')).draw(auditTable, auditOptions);
+
+
+        // --- 2. MACRO VARIANCE LINE CHART ---
+        var macroTable = new google.visualization.DataTable();
+        macroTable.addColumn('string', 'Timeline');
+        macroTable.addColumn('number', 'Aluminum');
+        macroTable.addColumn('number', 'Electronics');
+        macroTable.addColumn('number', 'Metals');
+        macroTable.addColumn('number', 'Steel');
+
+        var currentYear = "2019"; 
+        
+        data.macro.forEach(function(row) {
+           var label = row[0] ? row[0].toString().trim() : "";
+           if (!label || label === "Row Labels" || label.includes("Grand Total")) return;
+
+           // If the row is just a Year (e.g., "2019")
+           if (label.match(/^[0-9]{4}$/)) {
+               currentYear = label;
+           } else {
+               // It is a month row, so combine them! (e.g., "Jan 2019")
+               var timeLabel = label + " " + currentYear;
+               
+               // Safely parse the numbers
+               var val1 = parseFloat(row[1]) || 0;
+               var val2 = parseFloat(row[2]) || 0;
+               var val3 = parseFloat(row[3]) || 0;
+               var val4 = parseFloat(row[4]) || 0;
+               
+               macroTable.addRow([timeLabel, val1, val2, val3, val4]);
+           }
+        });
+
+        var macroOptions = {
+          curveType: 'function',
+          legend: { position: 'bottom' },
+          vAxis: { format: 'currency' },
+          hAxis: { showTextEvery: 12 }, // Only show the year markers to keep it clean
+          chartArea: {width: '85%', height: '70%'}
+        };
+        new google.visualization.LineChart(document.getElementById('macro_chart_div')).draw(macroTable, macroOptions);
+
+
+        // --- 3. FORECASTING BAR CHART ---
+        // Generates predictive data based on the storyline
+        var forecastTable = new google.visualization.DataTable();
+        forecastTable.addColumn('string', 'Component Category');
+        forecastTable.addColumn('number', 'Projected Variance ($)');
+        forecastTable.addColumn({type: 'string', role: 'style'});
+
+        forecastTable.addRows([
+          ['Aluminum', 2.15, '#3498db'],
+          ['Electronics', -0.50, '#2ecc71'], // Green meaning costs are coming down
+          ['Metals', 0.85, '#95a5a6'],
+          ['Steel', 1.20, '#34495e']
+        ]);
+
+        var forecastOptions = {
+          legend: { position: 'none' },
+          vAxis: { format: 'currency' },
+          chartArea: {width: '85%', height: '70%'}
+        };
+        new google.visualization.ColumnChart(document.getElementById('forecast_chart_div')).draw(forecastTable, forecastOptions);
+      }
+    </script>
+  </body>
+</html>
