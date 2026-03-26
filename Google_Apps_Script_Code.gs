@@ -1,6 +1,6 @@
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('Index')
-    .setTitle('ESI Financial Variance Dashboard')
+    .setTitle('Financial Variance Dashboard')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
