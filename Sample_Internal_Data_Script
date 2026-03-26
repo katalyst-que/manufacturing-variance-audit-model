@@ -1,0 +1,70 @@
+import pandas as pd
+import numpy as np
+import random
+from datetime import datetime, timedelta
+
+# 1. Define the Timeline (Matches your FRED data: Jan 2019 - Dec 2023)
+dates = pd.date_range(start='2019-01-01', end='2023-12-01', freq='MS')
+
+# 2. Define the Bill of Materials (BOM) for a Servo Motor
+parts = [
+    {"part_no": "SRV-ALUM-001", "desc": "Machined Aluminum Housing", "category": "Aluminum", "std_cost": 45.00, "std_labor": 1.5},
+    {"part_no": "SRV-STEL-045", "desc": "Cold-Rolled Steel Shaft", "category": "Steel", "std_cost": 22.50, "std_labor": 0.8},
+    {"part_no": "SRV-ELEC-882", "desc": "Electronic Control Board", "category": "Electronics", "std_cost": 115.00, "std_labor": 2.0},
+    {"part_no": "SRV-COPR-109", "desc": "Copper Winding Wire", "category": "Metals", "std_cost": 18.25, "std_labor": 0.5}
+]
+
+data = []
+
+# 3. Generate the Data Loop
+for date in dates:
+    # Simulate the massive 2021-2022 Supply Chain Inflation spike
+    is_inflation_spike = (date.year == 2021 or date.year == 2022)
+    
+    for part in parts:
+        # Base metrics
+        qty_on_hand = random.randint(100, 1500)
+        actual_cost = part["std_cost"] * random.uniform(0.95, 1.05) # Normal 5% variance
+        actual_labor = part["std_labor"] * random.uniform(0.90, 1.10)
+        last_used = date - timedelta(days=random.randint(1, 45)) # Normally used recently
+        
+        # Apply the macroeconomic inflation spike to actual costs
+        if is_inflation_spike and part["category"] in ["Electronics", "Aluminum"]:
+            actual_cost = actual_cost * random.uniform(1.25, 1.60) # 25% to 60% price spike
+            
+        # INJECTING AUDIT ANOMALIES FOR YOUR RESUME PORTFOLIO:
+        
+        # Anomaly 1: Negative Quantities (JD Requirement)
+        if random.random() < 0.02: # 2% chance
+            qty_on_hand = random.randint(-50, -1)
+            
+        # Anomaly 2: Zero Cost Items (JD Requirement)
+        if random.random() < 0.01: # 1% chance
+            actual_cost = 0.00
+            
+        # Anomaly 3: Obsolete/Excess Inventory (JD Requirement)
+        if random.random() < 0.03: # 3% chance
+            # Item hasn't been used in 1 to 2 years
+            last_used = date - timedelta(days=random.randint(365, 730))
+
+        # Append the row
+        data.append({
+            "Date": date.strftime('%Y-%m-%d'),
+            "Part_Number": part["part_no"],
+            "Description": part["desc"],
+            "Category": part["category"],
+            "Quantity_On_Hand": qty_on_hand,
+            "Standard_Unit_Cost": round(part["std_cost"], 2),
+            "Actual_Unit_Cost": round(actual_cost, 2),
+            "Cost_Variance": round(actual_cost - part["std_cost"], 2),
+            "Standard_Labor_Hours": round(part["std_labor"], 2),
+            "Actual_Labor_Hours": round(actual_labor, 2),
+            "Last_Used_Date": last_used.strftime('%Y-%m-%d')
+        })
+
+# 4. Create the DataFrame and Export
+df = pd.DataFrame(data)
+filename = "ESI_Internal_Manufacturing_Data.csv"
+df.to_csv(filename, index=False)
+print(f"Success! Generated {len(df)} rows of targeted inventory data.")
+print("The file is ready for download.")
