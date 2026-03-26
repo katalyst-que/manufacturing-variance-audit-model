@@ -1,7 +1,7 @@
 # 📊 Manufacturing Cost Variance & Inventory Compliance Audit Model
 
 ## 🎯 Executive Summary
-[cite_start]This project demonstrates an end-to-end **financial data engineering and variance analysis workflow** tailored for high-performance hardware manufacturing. By correlating internal inventory logs with external macroeconomic data, this model provides actionable insights into:
+This project demonstrates an end-to-end **financial data engineering and variance analysis workflow** tailored for high-performance hardware manufacturing. By correlating internal inventory logs with external macroeconomic data, this model provides actionable insights into:
 
 * **Strategic Forecasting:** Quantifying the $ impact of supply chain inflation (2019–2023).
 * **Operational Compliance:** Identifying capital risk through automated auditing of system anomalies.
